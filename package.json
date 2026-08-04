@@ -1,0 +1,34 @@
+{
+  "name": "mindfile-desktop",
+  "version": "1.0.0",
+  "description": "A mind-map style file manager for Windows",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.xiaozhi.branches",
+    "productName": "小智枝叶文件管理器",
+    "artifactName": "小智枝叶文件管理器-v1.0.${ext}",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "styles.css",
+      "renderer.js",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable"
+    }
+  },
+  "devDependencies": {
+    "electron": "^43.2.0",
+    "electron-builder": "^26.15.3"
+  }
+}

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>小智枝叶文件管理器 v1.0</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark"><i></i><i></i><i></i></div>
+          <div><strong>小智枝叶</strong><span>FILE MANAGER · v1.0</span></div>
+        </div>
+
+        <section class="side-section">
+          <h2>快速访问</h2>
+          <nav id="quickAccess" class="nav-list"></nav>
+        </section>
+
+        <section class="side-section drives-section">
+          <h2>本机磁盘</h2>
+          <nav id="driveList" class="nav-list"></nav>
+        </section>
+
+        <section class="side-section saved-section">
+          <div class="section-heading"><h2>收藏</h2><button id="addFavoriteButton" title="收藏当前项目">＋</button></div>
+          <nav id="favoritesList" class="saved-list"><p class="side-empty">暂无收藏</p></nav>
+        </section>
+
+        <section class="side-section saved-section">
+          <div class="section-heading"><h2>工作区</h2><button id="saveWorkspaceButton" title="保存当前图谱工作区">＋</button></div>
+          <nav id="workspaceList" class="saved-list"><p class="side-empty">暂无工作区</p></nav>
+        </section>
+
+        <section class="side-section operation-section">
+          <div class="section-heading"><h2>最近操作</h2><button id="undoButton" title="撤销上一步" disabled>↶</button></div>
+          <div id="operationHistoryList" class="operation-list"><p class="side-empty">尚无文件操作</p></div>
+        </section>
+
+        <section class="shortcut-section">
+          <h2>快捷操作</h2>
+          <div class="shortcut-list">
+            <div><kbd>Enter</kbd><span>打开 / 展开</span></div>
+            <div><kbd>F2</kbd><span>重命名</span></div>
+            <div><kbd>Delete</kbd><span>移到回收站</span></div>
+            <div><kbd>Ctrl C/X/V</kbd><span>复制 / 剪切 / 粘贴</span></div>
+            <div><kbd>Ctrl Z</kbd><span>撤销文件操作</span></div>
+            <div><kbd>Ctrl Shift N</kbd><span>新建文件夹</span></div>
+            <div><kbd>Ctrl + 单击</kbd><span>多选项目</span></div>
+            <div><kbd>Shift + 拖动</kbd><span>框选项目</span></div>
+            <div><kbd>Ctrl K</kbd><span>搜索</span></div>
+            <div><kbd>F5</kbd><span>刷新图谱</span></div>
+          </div>
+        </section>
+
+        <div class="safety-note">
+          <span>✓</span>
+          <p>文件操作支持 Ctrl + Z 撤销<br />同名冲突会先询问</p>
+        </div>
+      </aside>
+
+      <section class="workspace">
+        <header class="toolbar">
+          <div class="nav-actions">
+            <button id="backButton" class="icon-button" title="返回" disabled>←</button>
+            <button id="upButton" class="icon-button" title="上一级">↑</button>
+            <button id="refreshButton" class="icon-button" title="刷新">↻</button>
+          </div>
+          <div class="path-box">
+            <span class="path-dot"></span>
+            <input id="pathInput" aria-label="当前路径" spellcheck="false" />
+            <button id="goButton">前往</button>
+          </div>
+          <label class="search-box">
+            <span></span>
+            <input id="searchInput" placeholder="搜索整个当前位置…" />
+            <button id="searchButton" title="搜索整个当前位置">搜索</button>
+          </label>
+          <button id="chooseFolderButton" class="primary-button">选择文件夹</button>
+        </header>
+
+        <div class="search-filterbar">
+          <span>搜索范围：当前图谱根目录</span>
+          <label>类型 <select id="searchType"><option value="all">全部</option><option value="folder">文件夹</option><option value="document">文档</option><option value="image">图片</option><option value="video">视频</option><option value="audio">音频</option><option value="archive">压缩包</option></select></label>
+          <label>大小 <select id="searchSize"><option value="all">全部</option><option value="small">小于 1 MB</option><option value="medium">1–100 MB</option><option value="large">大于 100 MB</option></select></label>
+          <label>修改时间 <select id="searchModified"><option value="0">不限</option><option value="1">今天</option><option value="7">近 7 天</option><option value="30">近 30 天</option><option value="365">近一年</option></select></label>
+          <button id="clearSearchButton">清除结果</button>
+          <strong id="searchStatus"></strong>
+        </div>
+
+        <div class="main-row">
+          <section id="viewport" class="viewport" aria-label="文件思维导图">
+            <div class="canvas-hint"><i></i>双击打开 · 空白处拖动画布 · Shift + 拖动框选 · Alt + 拖动固定节点</div>
+            <div id="stage" class="stage">
+              <svg id="edges" class="edges"></svg>
+              <div id="nodesLayer"></div>
+            </div>
+            <div id="selectionBox" class="selection-box hidden"></div>
+            <div id="welcome" class="welcome hidden">
+              <div class="welcome-graphic"><span></span><i></i><b></b></div>
+              <p class="eyebrow">YOUR FILES, AS A MAP</p>
+              <h1>让磁盘里的文件<br />变成一张清晰的图谱</h1>
+              <p>选择一个磁盘或文件夹，目录会按需展开。<br />无需导入，操作的就是电脑中的真实文件。</p>
+              <button id="welcomeChooseButton" class="primary-button large">选择一个文件夹</button>
+            </div>
+
+            <div class="zoom-controls">
+              <button id="zoomOut" title="缩小">−</button>
+              <span id="zoomLabel">100%</span>
+              <button id="zoomIn" title="放大">＋</button>
+              <i></i>
+              <button id="fitButton" title="适应画布">⌗</button>
+            </div>
+            <div class="graph-tools">
+              <button id="locateButton" title="定位当前文件">定位</button>
+              <button id="collapseOthersButton" title="只保留当前路径">收起其他</button>
+              <button id="collapseAllButton" title="收起全部分支">全部收起</button>
+              <button id="centerButton" title="回到图谱中心">回到中心</button>
+            </div>
+            <div class="minimap-wrap"><canvas id="minimap" width="180" height="112"></canvas><span>小地图</span></div>
+            <div id="loadNotice" class="load-notice hidden"></div>
+          </section>
+
+          <aside id="inspector" class="inspector">
+            <div class="inspector-empty">
+              <div class="empty-orbit"><i></i></div>
+              <h2>选择一个文件</h2>
+              <p>在图谱中点击任意节点，查看属性并管理真实文件。</p>
+            </div>
+            <div id="inspectorContent" class="inspector-content hidden">
+              <div class="inspector-title">
+                <div><span class="eyebrow">FILE DETAILS</span><h2>文件详情</h2></div>
+                <div class="inspector-head-actions"><button id="favoriteButton" title="添加到收藏">☆</button><button id="copyPathButton" title="复制路径">⧉</button></div>
+              </div>
+              <p id="selectedCount" class="selected-count hidden"></p>
+              <div id="preview" class="preview"></div>
+              <label>名称</label>
+              <div id="nameRow" class="name-row">
+                <input id="nameInput" readonly />
+                <button id="renameButton">重命名</button>
+              </div>
+              <div class="metadata">
+                <div><span>类型</span><strong id="metaType">—</strong></div>
+                <div><span>大小</span><strong id="metaSize">—</strong></div>
+                <div><span>修改时间</span><strong id="metaModified">—</strong></div>
+                <div><span>扩展名</span><strong id="metaExtension">—</strong></div>
+              </div>
+              <label>完整路径</label>
+              <p id="fullPath" class="full-path"></p>
+              <div class="action-stack">
+                <button id="openButton" class="dark-button">打开</button>
+                <button id="revealButton">在资源管理器中显示</button>
+                <button id="newFolderButton" class="folder-only">在此新建文件夹</button>
+                <button id="pasteButton" class="folder-only">粘贴到此处</button>
+                <button id="copyButton">复制到…</button>
+                <button id="moveButton">移动到…</button>
+                <button id="trashButton" class="danger-button">移到回收站</button>
+                <button id="propertiesButton">Windows 属性</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+      <div id="toast" class="toast hidden"></div>
+      <div id="busy" class="busy hidden"><span></span><p>正在读取磁盘…</p></div>
+    </main>
+    <script src="renderer.js"></script>
+  </body>
+</html>
