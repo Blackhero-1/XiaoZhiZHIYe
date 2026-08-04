@@ -17,7 +17,7 @@
 
 ## 开发环境
 
-- Windows 10 或 Windows 11
+- Windows 10
 - Node.js 20 或更高版本
 - npm
 
@@ -34,7 +34,6 @@ npm start
 npm run dist
 ```
 
-生成的程序位于 `release/小智枝叶文件管理器-v1.0.exe`。
 
 ## 常用快捷键
 
